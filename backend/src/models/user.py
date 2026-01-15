@@ -12,6 +12,7 @@ from ..core.database import Base
 if TYPE_CHECKING:
     from .review import Review
     from .friendship import Friendship
+    from .friendship import Friendship
     from .linked_account import LinkedAccount
 
 

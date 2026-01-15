@@ -82,7 +82,7 @@
 - [ ] T032 Create Game model in backend/src/models/game.py with igdb_id, rawg_id, last_synced_at fields
 - [ ] T033 Create game repository in backend/src/repositories/game_repository.py with search and filter operations
 - [ ] T034 Implement game data service in backend/src/services/game_data_service.py with API fallback logic
-- [ ] T035 Create game seeding script in backend/scripts/seed_games_from_igdb.py for initial 10k popular games
+- [X] T035 Create game seeding script in backend/scripts/seed_games_from_igdb.py for initial 10k popular games
 - [ ] T036 Create incremental sync script in backend/scripts/sync_new_games.py for daily updates
 
 ### Frontend Foundation
