@@ -47,13 +47,20 @@ class User(Base):
     
     # Relationships
     reviews: Mapped[list["Review"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    # friendships_initiated: Mapped[list["Friendship"]] = relationship(
-    #     foreign_keys="Friendship.user_id", back_populates="user"
-    # )
-    # friendships_received: Mapped[list["Friendship"]] = relationship(
-    #     foreign_keys="Friendship.friend_id", back_populates="friend"
-    # )
-    # linked_accounts: Mapped[list["LinkedAccount"]] = relationship(back_populates="user")
+    
+    # Friendship relationships
+    sent_friend_requests: Mapped[list["Friendship"]] = relationship(
+        "Friendship",
+        foreign_keys="Friendship.requester_id", 
+        back_populates="requester",
+        cascade="all, delete-orphan"
+    )
+    received_friend_requests: Mapped[list["Friendship"]] = relationship(
+        "Friendship",
+        foreign_keys="Friendship.addressee_id", 
+        back_populates="addressee",
+        cascade="all, delete-orphan"
+    )
     
     def __repr__(self) -> str:
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"

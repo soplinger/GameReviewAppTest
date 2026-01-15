@@ -15,6 +15,8 @@ import RegisterPage from './pages/auth/RegisterPage';
 import { GameSearchPage } from './pages/games/GameSearchPage';
 import { GameDetailPage } from './pages/games/GameDetailPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
+import { FeedPage } from './pages/feed/FeedPage';
+import { FriendsPage } from './pages/social/FriendsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Create React Query client
@@ -58,9 +60,23 @@ const App: React.FC = () => {
                   }
                 />
                 
-                {/* Placeholder routes - will be implemented in later phases */}
-                <Route path="/feed" element={<div className="p-8">Feed (Coming Soon)</div>} />
-                <Route path="/friends" element={<div className="p-8">Friends (Coming Soon)</div>} />
+                {/* Social Routes - Protected */}
+                <Route
+                  path="/feed"
+                  element={
+                    <ProtectedRoute>
+                      <FeedPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/friends"
+                  element={
+                    <ProtectedRoute>
+                      <FriendsPage />
+                    </ProtectedRoute>
+                  }
+                />
                 
                 {/* 404 */}
                 <Route path="*" element={<Navigate to="/" replace />} />

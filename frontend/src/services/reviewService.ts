@@ -5,21 +5,21 @@ import type { Review, ReviewCreate, ReviewUpdate, PaginatedResponse } from '../t
 // Review API calls
 const reviewApi = {
   create: async (data: ReviewCreate): Promise<Review> => {
-    const response = await apiClient.post('/api/v1/reviews/', data);
+    const response = await apiClient.post('/reviews/', data);
     return response.data;
   },
 
   update: async (id: number, data: ReviewUpdate): Promise<Review> => {
-    const response = await apiClient.put(`/api/v1/reviews/${id}`, data);
+    const response = await apiClient.put(`/reviews/${id}`, data);
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await apiClient.delete(`/api/v1/reviews/${id}`);
+    await apiClient.delete(`/reviews/${id}`);
   },
 
   getById: async (id: number): Promise<Review> => {
-    const { data } = await apiClient.get(`/api/v1/reviews/${id}`);
+    const { data } = await apiClient.get(`/reviews/${id}`);
     return data;
   },
 
@@ -28,7 +28,7 @@ const reviewApi = {
     page?: number;
     page_size?: number;
   }): Promise<PaginatedResponse<Review>> => {
-    const { data } = await apiClient.get('/api/v1/reviews/', { params });
+    const { data } = await apiClient.get('/reviews/', { params });
     return data;
   },
 
@@ -37,7 +37,7 @@ const reviewApi = {
     page?: number;
     page_size?: number;
   }): Promise<PaginatedResponse<Review>> => {
-    const { data } = await apiClient.get('/api/v1/reviews/', { params });
+    const { data } = await apiClient.get('/reviews/', { params });
     return data;
   },
 
@@ -45,12 +45,12 @@ const reviewApi = {
     page?: number;
     page_size?: number;
   }): Promise<PaginatedResponse<Review>> => {
-    const { data } = await apiClient.get('/api/v1/reviews/users/me/reviews', { params });
+    const { data } = await apiClient.get('/reviews/users/me/reviews', { params });
     return data;
   },
 
   markHelpful: async (id: number): Promise<Review> => {
-    const { data } = await apiClient.post(`/api/v1/reviews/${id}/helpful`);
+    const { data } = await apiClient.post(`/reviews/${id}/helpful`);
     return data;
   },
 };

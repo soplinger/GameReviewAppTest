@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      const response = await apiClient.get<User>('/api/v1/auth/me');
+      const response = await apiClient.get<User>('/auth/me');
       setUser(response.data);
       setError(null);
     } catch (err) {
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(null);
 
       const response = await apiClient.post<TokenResponse>(
-        '/api/v1/auth/login',
+        '/auth/login',
         credentials
       );
 
@@ -98,7 +98,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      await apiClient.post<User>('/api/v1/auth/register', data);
+      await apiClient.post<User>('/auth/register', data);
 
       // Auto-login after registration
       await login({

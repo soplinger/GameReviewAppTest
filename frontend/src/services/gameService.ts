@@ -17,7 +17,7 @@ const gameApi = {
     page?: number;
     page_size?: number;
   }): Promise<PaginatedResponse<Game>> => {
-    const { data } = await apiClient.get('/api/v1/games/search', { params });
+    const { data } = await apiClient.get('/games/search', { params });
     return data;
   },
 
@@ -25,7 +25,7 @@ const gameApi = {
     page?: number;
     page_size?: number;
   }): Promise<PaginatedResponse<Game>> => {
-    const { data } = await apiClient.get('/api/v1/games/popular', { params });
+    const { data } = await apiClient.get('/games/popular', { params });
     return data;
   },
 
@@ -33,17 +33,17 @@ const gameApi = {
     page?: number;
     page_size?: number;
   }): Promise<PaginatedResponse<Game>> => {
-    const { data } = await apiClient.get('/api/v1/games/recent', { params });
+    const { data } = await apiClient.get('/games/recent', { params });
     return data;
   },
 
   getById: async (id: number): Promise<Game> => {
-    const { data } = await apiClient.get(`/api/v1/games/${id}`);
+    const { data } = await apiClient.get(`/games/${id}`);
     return data;
   },
 
   getBySlug: async (slug: string): Promise<Game> => {
-    const { data } = await apiClient.get(`/api/v1/games/slug/${slug}`);
+    const { data } = await apiClient.get(`/games/slug/${slug}`);
     return data;
   },
 };

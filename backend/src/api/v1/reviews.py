@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ...api.deps import get_current_user, get_review_service
+from ...api.deps import get_current_user, get_review_service, get_feed_service
 from ...models.user import User
 from ...schemas.review import (
     ReviewCreate,
@@ -13,6 +13,7 @@ from ...schemas.review import (
     ReviewUpdate,
 )
 from ...services.review_service import ReviewService
+from ...services.feed_service import FeedService
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
@@ -30,6 +31,40 @@ async def create_review(
     """
     try:
         return await review_service.create_review(current_user.id, review_data)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.get("/feed", response_model=ReviewListResponse)
+async def get_feed(
+    current_user: Annotated[User, Depends(get_current_user)],
+    feed_service: Annotated[FeedService, Depends(get_feed_service)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=50)] = 20,
+) -> ReviewListResponse:
+    """
+    Get social feed of reviews from friends.
+    
+    Requires authentication.
+    Returns reviews from friends ordered by most recent.
+    """
+    try:
+        reviews = await feed_service.get_user_feed(
+            user_id=current_user.id,
+            page=page,
+            per_page=page_size
+        )
+        
+        total = await feed_service.get_feed_count(current_user.id)
+        total_pages = (total + page_size - 1) // page_size
+        
+        return ReviewListResponse(
+            reviews=reviews,
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

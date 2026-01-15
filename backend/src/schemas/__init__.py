@@ -13,6 +13,18 @@ from .review import (
     ReviewSummary,
     ReviewUpdate,
 )
+from .social import (
+    FriendRequestCreate,
+    FriendRequestResponse,
+    FriendRequestUpdate,
+    FriendResponse,
+    FriendsListResponse,
+    FriendshipResponse,
+    PendingRequestsResponse,
+    UserSearchParams,
+    UserSearchResponse,
+    UserSearchResult,
+)
 
 __all__ = [
     "Token",

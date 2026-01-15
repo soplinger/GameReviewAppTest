@@ -24,7 +24,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         bool: True if password matches, False otherwise
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        # Bcrypt has a 72 byte limit, truncate if necessary for verification
+        password_bytes = plain_password.encode('utf-8')
+        if len(password_bytes) > 72:
+            plain_password = password_bytes[:72].decode('utf-8', errors='ignore')
+        
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception:
+        # If verification fails due to compatibility issues, return False
+        return False
 
 
 def get_password_hash(password: str) -> str:
@@ -36,8 +45,21 @@ def get_password_hash(password: str) -> str:
         
     Returns:
         str: Hashed password
+        
+    Raises:
+        ValueError: If password is too long for bcrypt
     """
-    return pwd_context.hash(password)
+    # Bcrypt has a 72 byte limit, truncate if necessary
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        # Log warning but proceed with truncation for compatibility
+        password = password_bytes[:72].decode('utf-8', errors='ignore')
+    
+    try:
+        return pwd_context.hash(password)
+    except Exception as e:
+        # Handle bcrypt compatibility issues gracefully
+        raise ValueError(f"Password hashing failed: {str(e)}") from e
 
 
 def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:

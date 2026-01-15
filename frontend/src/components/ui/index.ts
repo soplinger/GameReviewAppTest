@@ -16,3 +16,9 @@ export type { SpinnerProps } from './Spinner';
 
 export { default as Toast } from './Toast';
 export type { ToastProps } from './Toast';
+
+export { Alert } from './Alert';
+export { StarRating } from './StarRating';
+export { Avatar } from './Avatar';
+export { Badge } from './Badge';
+export { LoadingSpinner } from './LoadingSpinner';

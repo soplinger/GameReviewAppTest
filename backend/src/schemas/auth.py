@@ -12,7 +12,7 @@ class UserRegister(BaseModel):
     
     username: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
-    password: str = Field(..., min_length=8)
+    password: str = Field(..., min_length=8, max_length=72)  # Bcrypt limit is 72 bytes
     
     @field_validator("username")
     @classmethod
@@ -20,6 +20,15 @@ class UserRegister(BaseModel):
         """Validate username format."""
         if not v.replace("_", "").replace("-", "").isalnum():
             raise ValueError("Username must contain only letters, numbers, underscores, and hyphens")
+        return v
+    
+    @field_validator("password")
+    @classmethod  
+    def validate_password(cls, v: str) -> str:
+        """Validate password length for bcrypt compatibility."""
+        password_bytes = v.encode('utf-8')
+        if len(password_bytes) > 72:
+            raise ValueError("Password cannot exceed 72 bytes when encoded as UTF-8")
         return v
 
 

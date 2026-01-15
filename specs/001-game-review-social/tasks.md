@@ -172,32 +172,32 @@
 
 ### Backend - Friendship Management
 
-- [ ] T074 [US2] Create Friendship model in backend/src/models/friendship.py with status (pending/accepted/declined)
-- [ ] T075 [US2] Create friendship repository in backend/src/repositories/friendship_repository.py (create request, update status, get friends list)
-- [ ] T076 [US2] Create social schemas in backend/src/schemas/social.py (friend request, friend response, user search)
-- [ ] T077 [US2] Implement social service in backend/src/services/social_service.py (send request, accept/decline, remove friend, search users)
-- [ ] T078 [US2] Implement social endpoints in backend/src/api/v1/social.py per contracts/social.yaml (POST /friends/request, PUT /friends/{id}, DELETE /friends/{id}, GET /friends, GET /users/search)
+- [X] T074 [US2] Create Friendship model in backend/src/models/friendship.py with status (pending/accepted/declined)
+- [X] T075 [US2] Create friendship repository in backend/src/repositories/friendship_repository.py (create request, update status, get friends list)
+- [X] T076 [US2] Create social schemas in backend/src/schemas/social.py (friend request, friend response, user search)
+- [X] T077 [US2] Implement social service in backend/src/services/social_service.py (send request, accept/decline, remove friend, search users)
+- [X] T078 [US2] Implement social endpoints in backend/src/api/v1/social.py per contracts/social.yaml (POST /friends/request, PUT /friends/{id}, DELETE /friends/{id}, GET /friends, GET /users/search)
 
 ### Backend - Feed Generation
 
-- [ ] T079 [US2] Extend review repository with feed query in backend/src/repositories/review_repository.py (get reviews from friends, ordered by recency)
-- [ ] T080 [US2] Implement feed service in backend/src/services/feed_service.py with pagination
-- [ ] T081 [US2] Add feed endpoint to reviews router in backend/src/api/v1/reviews.py (GET /feed)
+- [X] T079 [US2] Extend review repository with feed query in backend/src/repositories/review_repository.py (get reviews from friends, ordered by recency)
+- [X] T080 [US2] Implement feed service in backend/src/services/feed_service.py with pagination
+- [X] T081 [US2] Add feed endpoint to reviews router in backend/src/api/v1/reviews.py (GET /feed)
 
 ### Frontend - Friend Management
 
-- [ ] T082 [P] [US2] Create social service in frontend/src/services/socialService.ts with friend request operations
-- [ ] T083 [P] [US2] Create user search component in frontend/src/components/social/UserSearch.tsx
-- [ ] T084 [P] [US2] Create friend list page in frontend/src/pages/social/FriendsPage.tsx showing friends and pending requests
-- [ ] T085 [P] [US2] Create FriendRequestCard component in frontend/src/components/social/FriendRequestCard.tsx (accept/decline buttons)
-- [ ] T086 [P] [US2] Create UserCard component in frontend/src/components/social/UserCard.tsx for search results with friend request button
+- [X] T082 [P] [US2] Create social service in frontend/src/services/socialService.ts with friend request operations
+- [X] T083 [P] [US2] Create user search component in frontend/src/components/social/UserSearch.tsx
+- [X] T084 [P] [US2] Create friend list page in frontend/src/pages/social/FriendsPage.tsx showing friends and pending requests
+- [X] T085 [P] [US2] Create FriendRequestCard component in frontend/src/components/social/FriendRequestCard.tsx (accept/decline buttons)
+- [X] T086 [P] [US2] Create UserCard component in frontend/src/components/social/UserCard.tsx for search results with friend request button
 
 ### Frontend - Social Feed
 
-- [ ] T087 [US2] Create feed service in frontend/src/services/feedService.ts with infinite scroll support
-- [ ] T088 [US2] Create feed page in frontend/src/pages/feed/FeedPage.tsx showing friend reviews with pagination
-- [ ] T089 [US2] Create FeedCard component in frontend/src/components/feed/FeedCard.tsx showing review with author info and game details
-- [ ] T090 [US2] Add navigation link to feed in header component
+- [X] T087 [US2] Create feed service in frontend/src/services/feedService.ts with infinite scroll support
+- [X] T088 [US2] Create feed page in frontend/src/pages/feed/FeedPage.tsx showing friend reviews with pagination
+- [X] T089 [US2] Create FeedCard component in frontend/src/components/feed/FeedCard.tsx showing review with author info and game details
+- [X] T090 [US2] Add navigation link to feed in header component
 
 ### Testing - User Story 2
 

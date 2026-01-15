@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .core.config import settings
 from .core.database import init_db
-from .api.v1 import auth_router
+from .api.v1 import auth_router, social_router
 from .api.v1.reviews import router as reviews_router
 from .api.v1.games import router as games_router
 
@@ -47,6 +47,13 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(reviews_router, prefix="/api/v1")
 app.include_router(games_router, prefix="/api/v1")
+
+
+# Include routers
+app.include_router(auth_router, prefix="/api/v1")
+app.include_router(reviews_router, prefix="/api/v1")
+app.include_router(games_router, prefix="/api/v1")
+app.include_router(social_router, prefix="/api/v1")
 
 
 @app.get("/")

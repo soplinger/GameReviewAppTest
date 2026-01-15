@@ -234,3 +234,39 @@ class ReviewRepository:
         await self.db.commit()
         await self.db.refresh(review)
         return review
+
+    async def get_feed_for_user(
+        self, 
+        user_id: int, 
+        friend_ids: List[int],
+        limit: int = 20, 
+        offset: int = 0
+    ) -> List[Review]:
+        """Get feed of reviews from friends ordered by recency.
+        
+        Args:
+            user_id: Current user ID
+            friend_ids: List of friend user IDs
+            limit: Number of reviews to return
+            offset: Number of reviews to skip for pagination
+            
+        Returns:
+            List of Review instances with user and game loaded
+        """
+        if not friend_ids:
+            return []
+        
+        query = (
+            select(Review)
+            .where(Review.user_id.in_(friend_ids))
+            .options(
+                joinedload(Review.user),
+                joinedload(Review.game)
+            )
+            .order_by(Review.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        
+        result = await self.db.execute(query)
+        return list(result.scalars().unique())

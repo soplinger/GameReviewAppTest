@@ -5,6 +5,9 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
+from .auth import UserResponse
+from .game import GameSearchResult
+
 
 class ReviewCreate(BaseModel):
     """Schema for creating a new review."""
@@ -77,11 +80,9 @@ class ReviewResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     
-    # Populated fields
-    username: Optional[str] = None
-    user_avatar_url: Optional[str] = None
-    game_name: Optional[str] = None
-    game_cover_url: Optional[str] = None
+    # Nested objects
+    user: Optional[UserResponse] = None
+    game: Optional[GameSearchResult] = None
     
     model_config = {
         "from_attributes": True

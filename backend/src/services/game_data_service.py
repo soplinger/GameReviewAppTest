@@ -297,7 +297,7 @@ class GameDataService:
                 if not igdb_id:
                     continue
                 
-                # Check if already exists
+                # Check if already exists by IGDB ID
                 existing = await self.game_repo.get_by_igdb_id(igdb_id)
                 if existing:
                     # Update if stale (older than 7 days)
@@ -305,11 +305,26 @@ class GameDataService:
                         game_data = self._transform_igdb_game(igdb_data)
                         await self.game_repo.update(existing.id, game_data)
                         synced += 1
-                else:
+                    continue
+                
+                # Transform the data and check for slug conflicts
+                game_data = self._transform_igdb_game(igdb_data)
+                slug = game_data.get("slug")
+                
+                # Check if slug already exists
+                existing_by_slug = await self.game_repo.get_by_slug(slug)
+                if existing_by_slug:
+                    # Skip if different game with same slug already exists
+                    logger.warning(f"Skipping game '{igdb_data.get('name')}' - slug '{slug}' already exists")
+                    continue
+                
+                try:
                     # Create new game
-                    game_data = self._transform_igdb_game(igdb_data)
                     await self.game_repo.create(game_data)
                     synced += 1
+                except Exception as e:
+                    logger.warning(f"Failed to create game '{igdb_data.get('name')}': {e}")
+                    continue
             
             logger.info(f"Synced {synced} popular games from IGDB")
             return synced

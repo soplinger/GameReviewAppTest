@@ -10,8 +10,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.database import get_db
 from ..models.user import User
 from ..repositories.user_repository import UserRepository
+from ..repositories.friendship_repository import FriendshipRepository  
+from ..repositories.review_repository import ReviewRepository
 from ..services.auth_service import AuthService
 from ..services.review_service import ReviewService
+from ..services.feed_service import FeedService
 
 # Security scheme for JWT tokens
 security = HTTPBearer()
@@ -36,6 +39,15 @@ async def get_review_service(
 ) -> ReviewService:
     """Get review service instance."""
     return ReviewService(db)
+
+
+async def get_feed_service(
+    db: Annotated[AsyncSession, Depends(get_db)]
+) -> FeedService:
+    """Get feed service instance."""
+    review_repo = ReviewRepository(db)
+    friendship_repo = FriendshipRepository(db)
+    return FeedService(review_repo, friendship_repo)
 
 
 async def get_current_user(

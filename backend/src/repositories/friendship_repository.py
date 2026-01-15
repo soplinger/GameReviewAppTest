@@ -104,7 +104,7 @@ class FriendshipRepository:
         Returns:
             Updated Friendship instance or None
         """
-        friendship = await self.get_by_id(friendship_id)
+        friendship = await self.get_by_id(friendship_id, load_users=True)
         if not friendship:
             return None
         
