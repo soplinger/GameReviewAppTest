@@ -1,0 +1,72 @@
+openapi: 3.0.3
+info:
+  title: Game Review Platform - Games API
+  version: 1.0.0
+
+paths:
+  /games:
+    get:
+      summary: Search and filter games
+      tags: [Games]
+      parameters:
+        - name: q
+          in: query
+          description: Search query
+          schema:
+            type: string
+        - name: platform
+          in: query
+          schema:
+            type: string
+        - name: genre
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of games
+
+  /games/{game_id}:
+    get:
+      summary: Get game details
+      tags: [Games]
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Game details with reviews
+
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        platforms:
+          type: array
+          items:
+            type: string
+        genres:
+          type: array
+          items:
+            type: string
+        average_rating:
+          type: number
+        review_count:
+          type: integer

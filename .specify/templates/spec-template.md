@@ -80,6 +80,11 @@
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
   Fill them out with the right functional requirements.
+  
+  CONSTITUTION COMPLIANCE: Ensure requirements support:
+  - Testing Standards: Requirements must be testable and verifiable
+  - UX Consistency: UI/UX requirements must reference design system components
+  - Performance Requirements: Include specific performance targets where applicable
 -->
 
 ### Functional Requirements
@@ -94,6 +99,27 @@
 
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+
+### Non-Functional Requirements (Constitution-Aligned)
+
+**Performance** (Constitution Principle IV):
+
+- **NFR-P001**: API endpoints MUST respond within p50 <200ms, p95 <500ms, p99 <1000ms
+- **NFR-P002**: Page load MUST achieve FCP <1.5s, TTI <3.5s on 3G connections
+- **NFR-P003**: [Feature-specific performance requirement]
+
+**User Experience** (Constitution Principle III):
+
+- **NFR-UX001**: UI MUST use approved design system components
+- **NFR-UX002**: Feature MUST meet WCAG 2.1 Level AA accessibility standards
+- **NFR-UX003**: Responsive design MUST support mobile (320px+), tablet (768px+), desktop (1024px+)
+- **NFR-UX004**: User actions MUST provide immediate feedback; loading states required for operations >300ms
+
+**Quality & Testing** (Constitution Principles I & II):
+
+- **NFR-Q001**: Code coverage MUST meet 80% minimum (95% for critical paths)
+- **NFR-Q002**: All public APIs MUST have inline documentation
+- **NFR-Q003**: Cyclomatic complexity MUST be ≤10 per function
 
 ### Key Entities *(include if feature involves data)*
 

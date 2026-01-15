@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  title: Game Review Platform - Recommendations API
+  version: 1.0.0
+
+paths:
+  /recommendations:
+    get:
+      summary: Get personalized game recommendations
+      tags: [Recommendations]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of recommended games
+
+  /recommendations/{recommendation_id}/dismiss:
+    post:
+      summary: Dismiss recommendation
+      tags: [Recommendations]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: recommendation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Recommendation dismissed
+
+  /preferences:
+    post:
+      summary: Mark game as enjoyed/disliked
+      tags: [Recommendations]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [game_id, preference_type]
+              properties:
+                game_id:
+                  type: integer
+                preference_type:
+                  type: string
+                  enum: [enjoyed, disliked]
+      responses:
+        '201':
+          description: Preference saved
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

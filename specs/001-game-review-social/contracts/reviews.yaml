@@ -1,0 +1,222 @@
+openapi: 3.0.3
+info:
+  title: Game Review Platform - Reviews API
+  version: 1.0.0
+  description: Review creation, editing, and retrieval endpoints
+
+servers:
+  - url: http://localhost:8000/api/v1
+
+paths:
+  /reviews:
+    get:
+      summary: List reviews with filters
+      tags: [Reviews]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: game_id
+          in: query
+          schema:
+            type: integer
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+
+    post:
+      summary: Create new review
+      tags: [Reviews]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreate'
+      responses:
+        '201':
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+
+  /reviews/{review_id}:
+    get:
+      summary: Get review by ID
+      tags: [Reviews]
+      parameters:
+        - name: review_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Review details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+
+    put:
+      summary: Update review
+      tags: [Reviews]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: review_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdate'
+      responses:
+        '200':
+          description: Review updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+
+    delete:
+      summary: Delete review
+      tags: [Reviews]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: review_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Review deleted
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        game_id:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        content:
+          type: string
+        is_draft:
+          type: boolean
+        playtime_hours:
+          type: integer
+          nullable: true
+        platform:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        user:
+          type: object
+          properties:
+            username:
+              type: string
+            avatar_url:
+              type: string
+        game:
+          type: object
+          properties:
+            title:
+              type: string
+            cover_image_url:
+              type: string
+
+    ReviewCreate:
+      type: object
+      required: [game_id, rating, content]
+      properties:
+        game_id:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        content:
+          type: string
+          minLength: 50
+          maxLength: 10000
+        is_draft:
+          type: boolean
+          default: false
+        platform:
+          type: string
+
+    ReviewUpdate:
+      type: object
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        content:
+          type: string
+          minLength: 50
+          maxLength: 10000
+        is_draft:
+          type: boolean
+        platform:
+          type: string
