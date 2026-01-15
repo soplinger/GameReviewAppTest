@@ -8,6 +8,13 @@ import type {
   PaginatedResponse,
 } from '../types/api';
 
+// Types for sync operations
+export interface SyncResponse {
+  success: boolean;
+  message: string;
+  count: number;
+}
+
 // Game API calls
 const gameApi = {
   search: async (params: {
@@ -18,6 +25,17 @@ const gameApi = {
     page_size?: number;
   }): Promise<PaginatedResponse<Game>> => {
     const { data } = await apiClient.get('/games/search', { params });
+    return data;
+  },
+
+  hybridSearch: async (params: {
+    query: string;
+    auto_sync?: boolean;
+    sync_limit?: number;
+    page?: number;
+    page_size?: number;
+  }): Promise<PaginatedResponse<Game>> => {
+    const { data } = await apiClient.get('/games/search/hybrid', { params });
     return data;
   },
 
@@ -46,6 +64,40 @@ const gameApi = {
     const { data } = await apiClient.get(`/games/slug/${slug}`);
     return data;
   },
+
+  // Sync operations
+  syncPopularGames: async (limit: number = 50): Promise<SyncResponse> => {
+    const { data } = await apiClient.post('/games/sync/popular', null, {
+      params: { limit },
+    });
+    return data;
+  },
+
+  syncGamesBySearch: async (query: string, limit: number = 10): Promise<SyncResponse> => {
+    const { data } = await apiClient.post('/games/sync/search', null, {
+      params: { query, limit },
+    });
+    return data;
+  },
+
+  syncGameById: async (igdbId: number): Promise<SyncResponse> => {
+    const { data } = await apiClient.post(`/games/sync/game/${igdbId}`);
+    return data;
+  },
+
+  syncGamesByGenre: async (genre: string, limit: number = 20): Promise<SyncResponse> => {
+    const { data } = await apiClient.post(`/games/sync/genre/${encodeURIComponent(genre)}`, null, {
+      params: { limit },
+    });
+    return data;
+  },
+
+  syncRecentGames: async (limit: number = 30, daysBack: number = 90): Promise<SyncResponse> => {
+    const { data } = await apiClient.post('/games/sync/recent', null, {
+      params: { limit, days_back: daysBack },
+    });
+    return data;
+  },
 };
 
 // React Query hooks for games
@@ -60,6 +112,20 @@ export const useSearchGames = (params: {
     queryKey: ['games', 'search', params],
     queryFn: () => gameApi.search(params),
     enabled: !!(params.query || params.platform || params.genre),
+  });
+};
+
+export const useHybridSearchGames = (params: {
+  query: string;
+  auto_sync?: boolean;
+  sync_limit?: number;
+  page?: number;
+  page_size?: number;
+}) => {
+  return useQuery({
+    queryKey: ['games', 'hybrid-search', params],
+    queryFn: () => gameApi.hybridSearch(params),
+    enabled: !!params.query,
   });
 };
 
@@ -90,5 +156,65 @@ export const useGameBySlug = (slug: string | null) => {
     queryKey: ['games', 'slug', slug],
     queryFn: () => gameApi.getBySlug(slug!),
     enabled: !!slug,
+  });
+};
+
+// Sync mutations
+export const useSyncPopularGames = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (limit: number = 50) => gameApi.syncPopularGames(limit),
+    onSuccess: () => {
+      // Invalidate games queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+    },
+  });
+};
+
+export const useSyncGamesBySearch = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ query, limit }: { query: string; limit?: number }) =>
+      gameApi.syncGamesBySearch(query, limit),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+    },
+  });
+};
+
+export const useSyncGameById = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (igdbId: number) => gameApi.syncGameById(igdbId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+    },
+  });
+};
+
+export const useSyncGamesByGenre = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ genre, limit }: { genre: string; limit?: number }) =>
+      gameApi.syncGamesByGenre(genre, limit),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+    },
+  });
+};
+
+export const useSyncRecentGames = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ limit, daysBack }: { limit?: number; daysBack?: number } = {}) =>
+      gameApi.syncRecentGames(limit, daysBack),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+    },
   });
 };

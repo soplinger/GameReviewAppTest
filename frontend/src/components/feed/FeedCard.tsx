@@ -93,16 +93,16 @@ export const FeedCard: React.FC<FeedCardProps> = ({
         className="flex items-start space-x-4 mb-4 cursor-pointer hover:bg-gray-50 rounded-lg p-3 -m-3 transition-colors"
         onClick={handleGameClick}
       >
-        {review.game.cover_image_url && (
+        {review.game.cover_url && (
           <img
-            src={review.game.cover_image_url}
-            alt={review.game.title}
+            src={review.game.cover_url}
+            alt={review.game.name}
             className="w-16 h-20 object-cover rounded-md shadow-sm"
           />
         )}
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">
-            {review.game.title}
+            {review.game.name}
           </h3>
           
           {review.game.genres && review.game.genres.length > 0 && (

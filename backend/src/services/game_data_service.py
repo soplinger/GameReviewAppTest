@@ -1,7 +1,7 @@
 """Game data service for managing game information from external APIs."""
 
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from loguru import logger
@@ -370,3 +370,194 @@ class GameDataService:
             "created_at": game.created_at.isoformat(),
             "updated_at": game.updated_at.isoformat(),
         }
+
+    async def sync_game_by_igdb_id(self, igdb_id: int):
+        """Sync a specific game from IGDB by ID.
+        
+        Args:
+            igdb_id: IGDB game ID
+            
+        Returns:
+            Game instance if synced successfully, None otherwise
+        """
+        try:
+            # Check if already exists
+            existing = await self.game_repo.get_by_igdb_id(igdb_id)
+            if existing:
+                # Update if stale (older than 7 days)
+                if (datetime.utcnow() - existing.last_synced_at).days > 7:
+                    igdb_data = await self.igdb_client.get_game_by_id(igdb_id)
+                    if igdb_data:
+                        game_data = self._transform_igdb_game(igdb_data)
+                        await self.game_repo.update(existing.id, game_data)
+                        return existing
+                return existing
+            
+            # Fetch from IGDB
+            igdb_data = await self.igdb_client.get_game_by_id(igdb_id)
+            if not igdb_data:
+                return None
+            
+            # Transform and create
+            game_data = self._transform_igdb_game(igdb_data)
+            return await self.game_repo.create(game_data)
+            
+        except Exception as e:
+            logger.error(f"Failed to sync game with IGDB ID {igdb_id}: {e}")
+            return None
+
+    async def sync_games_by_search(self, query: str, limit: int = 10) -> int:
+        """Search IGDB and sync matching games.
+        
+        Args:
+            query: Search query
+            limit: Maximum games to sync
+            
+        Returns:
+            Number of games synced
+        """
+        try:
+            igdb_games = await self.igdb_client.search_games(query=query, limit=limit)
+            synced = 0
+            
+            for igdb_data in igdb_games:
+                igdb_id = igdb_data.get("id")
+                if not igdb_id:
+                    continue
+                
+                # Check if already exists
+                existing = await self.game_repo.get_by_igdb_id(igdb_id)
+                if existing:
+                    continue
+                
+                # Transform and create
+                game_data = self._transform_igdb_game(igdb_data)
+                slug = game_data.get("slug")
+                
+                # Check slug conflict
+                existing_by_slug = await self.game_repo.get_by_slug(slug)
+                if existing_by_slug:
+                    logger.warning(f"Skipping game '{igdb_data.get('name')}' - slug conflict")
+                    continue
+                
+                try:
+                    await self.game_repo.create(game_data)
+                    synced += 1
+                except Exception as e:
+                    logger.warning(f"Failed to create game '{igdb_data.get('name')}': {e}")
+                    continue
+            
+            logger.info(f"Synced {synced} games for query '{query}'")
+            return synced
+            
+        except Exception as e:
+            logger.error(f"Failed to sync games for query '{query}': {e}")
+            return 0
+
+    async def sync_games_by_genre(self, genre: str, limit: int = 20) -> int:
+        """Sync popular games from a specific genre.
+        
+        Args:
+            genre: Genre name (e.g., "Action", "RPG", "Strategy")
+            limit: Maximum games to sync
+            
+        Returns:
+            Number of games synced
+        """
+        try:
+            # IGDB search by genre
+            search_query = f'genres.name = "{genre}"'
+            igdb_games = await self.igdb_client.search_games(query=search_query, limit=limit)
+            synced = 0
+            
+            for igdb_data in igdb_games:
+                igdb_id = igdb_data.get("id")
+                if not igdb_id:
+                    continue
+                
+                # Check if already exists
+                existing = await self.game_repo.get_by_igdb_id(igdb_id)
+                if existing:
+                    continue
+                
+                # Transform and create
+                game_data = self._transform_igdb_game(igdb_data)
+                slug = game_data.get("slug")
+                
+                # Check slug conflict
+                existing_by_slug = await self.game_repo.get_by_slug(slug)
+                if existing_by_slug:
+                    continue
+                
+                try:
+                    await self.game_repo.create(game_data)
+                    synced += 1
+                except Exception as e:
+                    logger.warning(f"Failed to create {genre} game '{igdb_data.get('name')}': {e}")
+                    continue
+            
+            logger.info(f"Synced {synced} {genre} games from IGDB")
+            return synced
+            
+        except Exception as e:
+            logger.error(f"Failed to sync {genre} games: {e}")
+            return 0
+
+    async def sync_recent_games(self, limit: int = 30, days_back: int = 90) -> int:
+        """Sync recently released games.
+        
+        Args:
+            limit: Maximum games to sync
+            days_back: How many days back to look for releases
+            
+        Returns:
+            Number of games synced
+        """
+        try:
+            # Calculate date range
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=days_back)
+            
+            # IGDB date range query
+            start_timestamp = int(start_date.timestamp())
+            end_timestamp = int(end_date.timestamp())
+            
+            igdb_games = await self.igdb_client.get_recent_games(
+                start_date=start_timestamp,
+                end_date=end_timestamp,
+                limit=limit
+            )
+            synced = 0
+            
+            for igdb_data in igdb_games:
+                igdb_id = igdb_data.get("id")
+                if not igdb_id:
+                    continue
+                
+                # Check if already exists
+                existing = await self.game_repo.get_by_igdb_id(igdb_id)
+                if existing:
+                    continue
+                
+                # Transform and create
+                game_data = self._transform_igdb_game(igdb_data)
+                slug = game_data.get("slug")
+                
+                # Check slug conflict
+                existing_by_slug = await self.game_repo.get_by_slug(slug)
+                if existing_by_slug:
+                    continue
+                
+                try:
+                    await self.game_repo.create(game_data)
+                    synced += 1
+                except Exception as e:
+                    logger.warning(f"Failed to create recent game '{igdb_data.get('name')}': {e}")
+                    continue
+            
+            logger.info(f"Synced {synced} recent games from IGDB")
+            return synced
+            
+        except Exception as e:
+            logger.error(f"Failed to sync recent games: {e}")
+            return 0

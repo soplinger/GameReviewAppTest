@@ -215,3 +215,97 @@ async def sync_games_by_search(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to sync games: {str(e)}"
         )
+
+
+@router.post("/sync/game/{igdb_id}", response_model=SyncResponse)
+async def sync_game_by_id(
+    igdb_id: int,
+    game_data_service: Annotated[GameDataService, Depends(get_game_data_service)],
+) -> SyncResponse:
+    """
+    Sync a specific game from IGDB by ID.
+    
+    Fetches detailed game information from IGDB and stores it locally.
+    """
+    try:
+        game = await game_data_service.sync_game_by_igdb_id(igdb_id)
+        if game:
+            return SyncResponse(
+                success=True,
+                message=f"Successfully synced game '{game.name}'",
+                count=1
+            )
+        else:
+            return SyncResponse(
+                success=False,
+                message=f"Game with IGDB ID {igdb_id} not found",
+                count=0
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to sync game: {str(e)}"
+        )
+
+
+@router.get("/search/hybrid", response_model=GameListResponse)
+async def hybrid_search_games(
+    game_service: Annotated[GameService, Depends(get_game_service)],
+    game_data_service: Annotated[GameDataService, Depends(get_game_data_service)],
+    query: str = Query(..., min_length=1, description="Search query"),
+    auto_sync: bool = Query(True, description="Auto-sync from IGDB if no local results"),
+    sync_limit: int = Query(10, ge=1, le=20, description="Number of games to sync if no local results"),
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+) -> GameListResponse:
+    """
+    Hybrid search: check local database first, fall back to IGDB if needed.
+    
+    1. Search local database
+    2. If no results and auto_sync=True, search and sync from IGDB
+    3. Return combined results
+    """
+    # First, search local database
+    params = GameSearchParams(
+        query=query,
+        page=page,
+        page_size=page_size,
+    )
+    
+    local_games, local_total = await game_service.search_games(params)
+    
+    # If we have local results, return them
+    if local_games:
+        total_pages = (local_total + page_size - 1) // page_size
+        return GameListResponse(
+            games=local_games,
+            total=local_total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+        )
+    
+    # No local results - sync from IGDB if enabled
+    if auto_sync:
+        try:
+            synced_count = await game_data_service.sync_games_by_search(
+                query=query, 
+                limit=sync_limit
+            )
+            
+            # Search again after sync
+            if synced_count > 0:
+                local_games, local_total = await game_service.search_games(params)
+        except Exception:
+            # If IGDB sync fails, continue with empty results
+            pass
+    
+    total_pages = (local_total + page_size - 1) // page_size if local_total > 0 else 0
+    
+    return GameListResponse(
+        games=local_games,
+        total=local_total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+    )
