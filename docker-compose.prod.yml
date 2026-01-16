@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   backend:
-    image: ghcr.io/${GITHUB_REPOSITORY}/backend:latest
+    image: ghcr.io/soplinger/gamereviewapptest/backend:latest
     container_name: game-review-backend
     restart: unless-stopped
     environment:
@@ -31,7 +29,7 @@ services:
       start_period: 40s
 
   frontend:
-    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:latest
+    image: ghcr.io/soplinger/gamereviewapptest/frontend:latest
     container_name: game-review-frontend
     restart: unless-stopped
     networks:
