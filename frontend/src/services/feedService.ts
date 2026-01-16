@@ -4,7 +4,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '../lib/api';
+import { apiClient } from '@/lib/api';
 import type { ReviewResponse } from './reviewService';
 
 // Types for feed

@@ -4,7 +4,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../lib/api';
+import { apiClient } from '@/lib/api';
 import type { User } from '../types/auth';
 
 // Types for social features
