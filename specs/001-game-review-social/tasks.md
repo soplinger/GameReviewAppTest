@@ -68,38 +68,38 @@
 - [X] T021 Implement password hashing utilities in backend/src/core/security.py using passlib with bcrypt
 - [X] T022 Implement JWT token generation and validation in backend/src/core/security.py using python-jose
 - [X] T023 Create User model in backend/src/models/user.py with all attributes from data-model.md
-- [ ] T024 Create user authentication schema in backend/src/schemas/auth.py (register, login, token response)
-- [ ] T025 Create user repository in backend/src/repositories/user_repository.py with CRUD operations
-- [ ] T026 Implement authentication service in backend/src/services/auth_service.py (register, login, token refresh)
-- [ ] T027 Create authentication dependency in backend/src/api/deps.py (get_current_user, get_db)
-- [ ] T028 Implement authentication endpoints in backend/src/api/v1/auth.py per contracts/auth.yaml
-- [ ] T029 [P] Setup CORS middleware in backend/src/main.py for frontend origin
+- [X] T024 Create user authentication schema in backend/src/schemas/auth.py (register, login, token response)
+- [X] T025 Create user repository in backend/src/repositories/user_repository.py with CRUD operations
+- [X] T026 Implement authentication service in backend/src/services/auth_service.py (register, login, token refresh)
+- [X] T027 Create authentication dependency in backend/src/api/deps.py (get_current_user, get_db)
+- [X] T028 Implement authentication endpoints in backend/src/api/v1/auth.py per contracts/auth.yaml
+- [X] T029 [P] Setup CORS middleware in backend/src/main.py for frontend origin
 
 ### Game Data Integration (External APIs)
 
-- [ ] T030 [P] Create IGDB API client in backend/src/services/external/igdb_client.py with OAuth authentication
+- [X] T030 [P] Create IGDB API client in backend/src/services/external/igdb_client.py with OAuth authentication
 - [ ] T031 [P] Create RAWG API client in backend/src/services/external/rawg_client.py with API key authentication
-- [ ] T032 Create Game model in backend/src/models/game.py with igdb_id, rawg_id, last_synced_at fields
-- [ ] T033 Create game repository in backend/src/repositories/game_repository.py with search and filter operations
-- [ ] T034 Implement game data service in backend/src/services/game_data_service.py with API fallback logic
+- [X] T032 Create Game model in backend/src/models/game.py with igdb_id, rawg_id, last_synced_at fields
+- [X] T033 Create game repository in backend/src/repositories/game_repository.py with search and filter operations
+- [X] T034 Implement game data service in backend/src/services/game_data_service.py with API fallback logic
 - [X] T035 Create game seeding script in backend/scripts/seed_games_from_igdb.py for initial 10k popular games
 - [ ] T036 Create incremental sync script in backend/scripts/sync_new_games.py for daily updates
 
 ### Frontend Foundation
 
-- [ ] T037 Create API client configuration in frontend/src/lib/api.ts with axios and base URL
-- [ ] T038 Create auth context in frontend/src/contexts/AuthContext.tsx for global auth state
-- [ ] T039 Setup React Router in frontend/src/App.tsx with route definitions
-- [ ] T040 [P] Create base UI components in frontend/src/components/ui/ (Button, Input, Card, Spinner, Toast)
-- [ ] T041 [P] Create layout components in frontend/src/components/layout/ (Header, Footer, Sidebar, Container)
-- [ ] T042 [P] Create form components in frontend/src/components/forms/ (FormField, FormError, FormLabel)
-- [ ] T043 Setup React Query in frontend/src/main.tsx for data fetching and caching
+- [X] T037 Create API client configuration in frontend/src/lib/api.ts with axios and base URL
+- [X] T038 Create auth context in frontend/src/contexts/AuthContext.tsx for global auth state
+- [X] T039 Setup React Router in frontend/src/App.tsx with route definitions
+- [X] T040 [P] Create base UI components in frontend/src/components/ui/ (Button, Input, Card, Spinner, Toast)
+- [X] T041 [P] Create layout components in frontend/src/components/layout/ (Header, Footer, Sidebar, Container)
+- [X] T042 [P] Create form components in frontend/src/components/forms/ (FormField, FormError, FormLabel)
+- [X] T043 Setup React Query in frontend/src/main.tsx for data fetching and caching
 
 ### Error Handling & Logging
 
-- [ ] T044 [P] Create error handling middleware in backend/src/core/errors.py with custom exceptions
-- [ ] T045 [P] Setup structured logging in backend/src/core/logging.py using structlog
-- [ ] T046 [P] Create error boundary component in frontend/src/components/ErrorBoundary.tsx
+- [X] T044 [P] Create error handling middleware in backend/src/core/errors.py with custom exceptions
+- [X] T045 [P] Setup structured logging in backend/src/core/logging.py using structlog
+- [X] T046 [P] Create error boundary component in frontend/src/components/ErrorBoundary.tsx
 
 **Checkpoint**: ✅ Foundation ready - user story implementation can now begin in parallel
 

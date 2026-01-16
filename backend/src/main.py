@@ -9,9 +9,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .core.config import settings
 from .core.database import init_db
+from .core.errors import register_exception_handlers
+from .core.logging import configure_logging, get_logger
 from .api.v1 import auth_router, social_router
 from .api.v1.reviews import router as reviews_router
 from .api.v1.games import router as games_router
+
+# Configure logging
+configure_logging(log_level="INFO", json_logs=False)
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
@@ -21,9 +27,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Runs on startup and shutdown.
     """
     # Startup: Initialize database
+    logger.info("Starting application...")
     await init_db()
+    logger.info("Database initialized successfully")
     yield
     # Shutdown: Cleanup (if needed)
+    logger.info("Shutting down application...")
 
 
 # Create FastAPI application
@@ -33,6 +42,9 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# Register exception handlers
+register_exception_handlers(app)
 
 # Configure CORS
 app.add_middleware(

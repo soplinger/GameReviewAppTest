@@ -6,6 +6,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header, Footer } from './components/layout';
 
 // Pages
@@ -32,13 +33,14 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <div className="flex flex-col min-h-screen bg-gray-50">
-            <Header />
-            <main className="flex-1">
-              <Routes>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AuthProvider>
+            <div className="flex flex-col min-h-screen bg-gray-50">
+              <Header />
+              <main className="flex-1">
+                <Routes>
                 {/* Home */}
                 <Route path="/" element={<HomePage />} />
                 
@@ -87,6 +89,7 @@ const App: React.FC = () => {
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
