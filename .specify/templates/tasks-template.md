@@ -48,9 +48,15 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
+**Constitution Compliance**: Establish quality gates and tooling per Principles I, II, IV
+
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
-- [ ] T003 [P] Configure linting and formatting tools
+- [ ] T003 [P] Configure linting and formatting tools (zero warnings policy)
+- [ ] T004 [P] Setup type checking (TypeScript strict mode / Python type hints)
+- [ ] T005 [P] Configure test framework and coverage reporting (80% threshold)
+- [ ] T006 [P] Setup performance monitoring and alerting
+- [ ] T007 [P] Configure accessibility testing tools (axe, Lighthouse)
 
 ---
 
@@ -60,14 +66,19 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
+**Constitution Compliance**: Infrastructure must support all 4 core principles
+
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Implement authentication/authorization framework
-- [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
-- [ ] T009 Setup environment configuration management
+- [ ] T008 Setup database schema and migrations framework
+- [ ] T009 [P] Implement authentication/authorization framework
+- [ ] T010 [P] Setup API routing and middleware structure
+- [ ] T011 Create base models/entities that all stories depend on
+- [ ] T012 Configure error handling and logging infrastructure
+- [ ] T013 Setup environment configuration management
+- [ ] T014 [P] Implement design system base components (UX Principle III)
+- [ ] T015 [P] Setup performance monitoring and budgets (Performance Principle IV)
+- [ ] T016 Configure CI/CD pipeline with quality gates (Testing Principle II)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,14 +90,28 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1 (MANDATORY per Constitution Principle II) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **CONSTITUTION REQUIREMENT: TDD Workflow - Write tests FIRST, ensure they FAIL, then implement**
+> Tests must be written, user-approved, and failing (Red) before any implementation begins
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T017 [P] [US1] Unit tests for [component] in tests/unit/test_[name].py (70% of test effort)
+- [ ] T018 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py (20% of test effort)
+- [ ] T019 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
+- [ ] T020 [P] [US1] E2E test for critical path in tests/e2e/test_[name].py (10% of test effort)
+- [ ] T021 [P] [US1] Accessibility tests (keyboard nav, screen reader) in tests/a11y/test_[name].py
+- [ ] T022 [P] [US1] Performance regression tests for response times in tests/perf/test_[name].py
+
+**TEST APPROVAL GATE**: User must review and approve tests before proceeding to implementation
 
 ### Implementation for User Story 1
+
+**Constitution Compliance Checklist** (verify before starting):
+
+- [ ] Tests written first and approved ✓
+- [ ] All tests currently failing (Red state) ✓
+- [ ] Code quality tools configured ✓
+- [ ] Performance budgets defined ✓
 
 - [ ] T012 [P] [US1] Create [Entity1] model in src/models/[entity1].py
 - [ ] T013 [P] [US1] Create [Entity2] model in src/models/[entity2].py

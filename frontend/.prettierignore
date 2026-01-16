@@ -1,0 +1,41 @@
+# Prettier ignore patterns for React + TypeScript + Vite project
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Coverage reports
+coverage/
+
+# Lock files (should not be reformatted)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files (should not be reformatted)
+*.min.js
+*.min.css
+
+# IDE config files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env*
+
+# Cache
+.vite/
+.eslintcache
+
+# Documentation that might have specific formatting
+CHANGELOG.md
