@@ -52,7 +52,7 @@ const App: React.FC = () => {
                 
                 {/* Game Routes */}
                 <Route path="/games" element={<GameSearchPage />} />
-                <Route path="/games/:id" element={<GameDetailPage />} />
+                <Route path="/games/:slug" element={<GameDetailPage />} />
                 
                 {/* Protected Routes */}
                 <Route

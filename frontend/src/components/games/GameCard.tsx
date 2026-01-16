@@ -17,7 +17,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   };
 
   return (
-    <Link to={`/games/${game.id}`}>
+    <Link to={`/games/${game.slug}`}>
       <Card variant="bordered" className="h-full hover:shadow-lg transition-shadow cursor-pointer">
         <div className="aspect-[3/4] bg-gray-200 rounded-lg overflow-hidden mb-3">
           {game.cover_url ? (

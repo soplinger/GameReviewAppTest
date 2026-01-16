@@ -12,7 +12,7 @@ import { Badge } from '../ui/Badge';
 interface FeedCardProps {
   review: ReviewResponse;
   onUserClick?: (userId: number) => void;
-  onGameClick?: (gameId: number) => void;
+  onGameClick?: (gameId: number, gameSlug?: string) => void;
   className?: string;
 }
 
@@ -30,7 +30,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
 
   const handleGameClick = () => {
     if (onGameClick) {
-      onGameClick(review.game.id);
+      onGameClick(review.game.id, review.game.slug);
     }
   };
 

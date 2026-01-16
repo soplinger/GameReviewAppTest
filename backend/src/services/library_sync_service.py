@@ -45,7 +45,8 @@ class LibrarySyncService:
     async def sync_user_library(
         self,
         user_id: int,
-        platform: Optional[PlatformType] = None
+        platform: Optional[PlatformType] = None,
+        job_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Sync game library for a user from one or all platforms.
@@ -82,9 +83,15 @@ class LibrarySyncService:
             "errors": []
         }
         
-        for plat in platforms:
+        for idx, plat in enumerate(platforms):
             try:
-                result = await self._sync_platform_library(user_id, plat)
+                # Update job progress if job_id provided
+                if job_id:
+                    from .sync_job_manager import sync_job_manager
+                    progress = int((idx / len(platforms)) * 100)
+                    sync_job_manager.update_progress(job_id, progress=progress)
+                
+                result = await self._sync_platform_library(user_id, plat, job_id)
                 summary["synced_platforms"].append(plat.value)
                 summary["total_games"] += result["total"]
                 summary["new_games"] += result["new"]
@@ -110,7 +117,8 @@ class LibrarySyncService:
     async def _sync_platform_library(
         self,
         user_id: int,
-        platform: PlatformType
+        platform: PlatformType,
+        job_id: Optional[str] = None
     ) -> Dict[str, int]:
         """
         Sync library from a specific platform.
@@ -118,6 +126,7 @@ class LibrarySyncService:
         Args:
             user_id: User ID
             platform: Platform to sync
+            job_id: Optional job ID for progress tracking
             
         Returns:
             Dict with total, new, and updated counts
@@ -146,8 +155,23 @@ class LibrarySyncService:
         # Process each game
         new_count = 0
         updated_count = 0
+        failed_count = 0
         
-        for platform_game in platform_games:
+        # Update job with total count
+        if job_id:
+            from .sync_job_manager import sync_job_manager
+            sync_job_manager.update_progress(job_id, total_games=len(platform_games))
+        
+        for idx, platform_game in enumerate(platform_games):
+            # Update job progress
+            if job_id:
+                from .sync_job_manager import sync_job_manager
+                sync_job_manager.update_progress(
+                    job_id,
+                    synced_games=new_count + updated_count,
+                    failed_games=failed_count
+                )
+            
             try:
                 # Try to match platform game to our database game
                 game = await self._match_platform_game(platform_game, platform)
@@ -158,6 +182,7 @@ class LibrarySyncService:
                         platform_game_id=platform_game["platform_game_id"],
                         name=platform_game.get("name")
                     )
+                    failed_count += 1
                     continue
                 
                 # Calculate achievements count
@@ -184,6 +209,7 @@ class LibrarySyncService:
                     platform_game_id=platform_game.get("platform_game_id"),
                     error=str(e)
                 )
+                failed_count += 1
                 continue
         
         # Update last synced time

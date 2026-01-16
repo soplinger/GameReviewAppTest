@@ -120,15 +120,46 @@ class OAuthService {
   }
 
   /**
-   * Sync game library from linked platforms
+   * Sync game library from linked platforms (returns job ID)
    */
-  async syncLibrary(platform?: 'steam' | 'playstation' | 'xbox'): Promise<LibrarySyncResponse> {
+  async syncLibrary(platform?: 'steam' | 'playstation' | 'xbox'): Promise<{ job_id: string; status: string; message: string }> {
     const params = platform ? { platform } : {};
     const response = await axios.post(
       `${API_BASE_URL}/oauth/library/sync`,
       null,
       {
         params,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      }
+    );
+    return response.data;
+  }
+
+  /**
+   * Get sync job status
+   */
+  async getSyncJobStatus(jobId: string): Promise<any> {
+    const response = await axios.get(
+      `${API_BASE_URL}/oauth/library/sync/status/${jobId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      }
+    );
+    return response.data;
+  }
+
+  /**
+   * Get user's recent sync jobs
+   */
+  async getSyncJobs(limit: number = 10): Promise<{ jobs: any[] }> {
+    const response = await axios.get(
+      `${API_BASE_URL}/oauth/library/sync/jobs`,
+      {
+        params: { limit },
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }

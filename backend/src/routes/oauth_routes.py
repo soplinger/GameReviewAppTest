@@ -19,6 +19,7 @@ from ..schemas.linked_account import (
 from ..services.oauth_service import OAuthService
 from ..services.library_sync_service import LibrarySyncService
 from ..services.oauth_state_manager import oauth_state_manager
+from ..services.sync_job_manager import sync_job_manager, JobStatus
 from ..core.logging import get_logger
 from ..core.errors import ValidationError, AuthenticationError
 
@@ -186,16 +187,15 @@ async def unlink_account(
     return {"message": f"{platform.capitalize()} account unlinked successfully"}
 
 
-@router.post("/library/sync", response_model=LibrarySyncResponse)
+@router.post("/library/sync")
 async def sync_game_library(
     platform: Optional[str] = Query(None, description="Specific platform to sync, or all if not specified"),
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Sync game library from linked gaming platforms.
+    Start library sync job in background.
     
-    Imports games, playtime, and achievements from specified platform or all linked platforms.
+    Returns job ID to check progress using /library/sync/status/{job_id}.
     """
     platform_type = None
     if platform:
@@ -204,20 +204,102 @@ async def sync_game_library(
         except ValueError:
             raise ValidationError(f"Invalid platform: {platform}")
     
-    library_sync_service = LibrarySyncService(db)
-    result = await library_sync_service.sync_user_library(
+    # Create job
+    job_id = sync_job_manager.create_job(
         user_id=current_user.id,
-        platform=platform_type
+        platform=platform_type.value if platform_type else None
     )
+    
+    # Create a wrapper coroutine that manages its own DB session
+    async def run_sync_with_new_session():
+        from ..core.database import AsyncSessionLocal
+        async with AsyncSessionLocal() as session:
+            library_sync_service = LibrarySyncService(session)
+            return await library_sync_service.sync_user_library(
+                user_id=current_user.id,
+                platform=platform_type,
+                job_id=job_id
+            )
+    
+    # Start sync in background with new session
+    sync_job_manager.start_job(job_id, run_sync_with_new_session())
     
     logger.info(
-        "library_sync_completed",
+        "library_sync_started",
         user_id=current_user.id,
         platform=platform or "all",
-        result=result
+        job_id=job_id
     )
     
-    return LibrarySyncResponse(**result)
+    return {
+        "job_id": job_id,
+        "status": "started",
+        "message": "Library sync started in background. Use job_id to check progress."
+    }
+
+
+@router.get("/library/sync/status/{job_id}")
+async def get_sync_job_status(
+    job_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get status of a library sync job.
+    
+    Returns job progress, status, and results if completed.
+    """
+    job = sync_job_manager.get_job(job_id)
+    
+    if not job:
+        raise ValidationError(f"Job {job_id} not found")
+    
+    # Verify job belongs to current user
+    if job.user_id != current_user.id:
+        raise ValidationError("Unauthorized access to job")
+    
+    return {
+        "job_id": job.job_id,
+        "status": job.status.value,
+        "platform": job.platform,
+        "progress": job.progress,
+        "total_games": job.total_games,
+        "synced_games": job.synced_games,
+        "failed_games": job.failed_games,
+        "created_at": job.created_at.isoformat(),
+        "started_at": job.started_at.isoformat() if job.started_at else None,
+        "completed_at": job.completed_at.isoformat() if job.completed_at else None,
+        "error": job.error,
+        "result": job.result
+    }
+
+
+@router.get("/library/sync/jobs")
+async def get_my_sync_jobs(
+    limit: int = Query(10, ge=1, le=50),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get recent sync jobs for current user.
+    """
+    jobs = sync_job_manager.get_user_jobs(current_user.id, limit=limit)
+    
+    return {
+        "jobs": [
+            {
+                "job_id": job.job_id,
+                "status": job.status.value,
+                "platform": job.platform,
+                "progress": job.progress,
+                "total_games": job.total_games,
+                "synced_games": job.synced_games,
+                "failed_games": job.failed_games,
+                "created_at": job.created_at.isoformat(),
+                "completed_at": job.completed_at.isoformat() if job.completed_at else None,
+                "error": job.error
+            }
+            for job in jobs
+        ]
+    }
 
 
 @router.get("/library/me", response_model=GameLibraryListResponse)

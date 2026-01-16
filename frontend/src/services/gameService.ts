@@ -143,11 +143,16 @@ export const useRecentGames = (params: { page?: number; page_size?: number } = {
   });
 };
 
-export const useGame = (id: number | null) => {
+export const useGame = (idOrSlug: number | string | null | undefined) => {
   return useQuery({
-    queryKey: ['games', id],
-    queryFn: () => gameApi.getById(id!),
-    enabled: !!id,
+    queryKey: ['games', idOrSlug],
+    queryFn: async () => {
+      if (!idOrSlug) throw new Error('Game ID or slug is required');
+      // If it's a number or numeric string, use ID endpoint, otherwise use slug
+      const isId = typeof idOrSlug === 'number' || /^\d+$/.test(String(idOrSlug));
+      return isId ? gameApi.getById(Number(idOrSlug)) : gameApi.getBySlug(String(idOrSlug));
+    },
+    enabled: !!idOrSlug,
   });
 };
 

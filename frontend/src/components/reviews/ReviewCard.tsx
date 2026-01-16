@@ -70,7 +70,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
 
           {showGameInfo && review.game_name && (
             <Link
-              to={`/games/${review.game_id}`}
+              to={`/games/${review.game?.slug || review.game_id}`}
               className="text-primary-600 hover:text-primary-700 font-medium"
             >
               {review.game_name}

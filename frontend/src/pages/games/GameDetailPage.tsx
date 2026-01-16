@@ -11,18 +11,17 @@ import { useAuth } from '../../contexts/AuthContext';
 import type { ReviewCreate } from '../../types/api';
 
 export const GameDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const gameId = id ? parseInt(id) : null;
+  const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewPage, setReviewPage] = useState(1);
 
-  const { data: game, isLoading, error } = useGame(gameId);
+  const { data: game, isLoading, error } = useGame(slug);
   const {
     data: reviewsData,
     isLoading: reviewsLoading,
     error: reviewsError,
-  } = useGameReviews(gameId, reviewPage);
+  } = useGameReviews(game?.id || null, reviewPage);
 
   const createReview = useCreateReview();
 

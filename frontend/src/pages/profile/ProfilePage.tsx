@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useMyReviews, useDeleteReview, useUpdateReview } from '../../services/reviewService';
 import { ReviewCard } from '../../components/reviews/ReviewCard';
@@ -7,15 +7,110 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Spinner } from '../../components/ui/Spinner';
 import type { ReviewUpdate } from '../../types/api';
+import { FaSteam, FaPlaystation, FaXbox, FaSync } from 'react-icons/fa';
+import { oauthService } from '../../services/oauthService';
 
 export const ProfilePage = () => {
   const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+  const [linkedAccounts, setLinkedAccounts] = useState<any[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncingPlatform, setSyncingPlatform] = useState<string | null>(null);
 
   const { data, isLoading, error } = useMyReviews(page, 10);
   const deleteReview = useDeleteReview();
   const updateReview = useUpdateReview();
+
+  useEffect(() => {
+    loadLinkedAccounts();
+    
+    const handleOAuthComplete = () => {
+      loadLinkedAccounts();
+    };
+    
+    window.addEventListener('oauth-complete', handleOAuthComplete);
+    return () => window.removeEventListener('oauth-complete', handleOAuthComplete);
+  }, []);
+
+  const loadLinkedAccounts = async () => {
+    try {
+      const accounts = await oauthService.getLinkedAccounts();
+      setLinkedAccounts(accounts);
+    } catch (err) {
+      console.error('Failed to load linked accounts:', err);
+    }
+  };
+
+  const handleLinkAccount = async (platform: string) => {
+    try {
+      await oauthService.linkAccount(platform);
+    } catch (err) {
+      console.error('Failed to link account:', err);
+    }
+  };
+
+  const handleUnlinkAccount = async (platform: string) => {
+    if (!window.confirm(`Are you sure you want to unlink your ${platform} account?`)) {
+      return;
+    }
+    
+    try {
+      await oauthService.unlinkAccount(platform);
+      await loadLinkedAccounts();
+    } catch (err) {
+      console.error('Failed to unlink account:', err);
+    }
+  };
+
+  const handleSyncLibrary = async (platform?: string) => {
+    setIsSyncing(true);
+    setSyncingPlatform(platform || 'all');
+    
+    try {
+      // Start sync job
+      const response = await oauthService.syncLibrary(platform);
+      const jobId = response.job_id;
+      
+      // Poll for job status
+      const pollInterval = setInterval(async () => {
+        try {
+          const status = await oauthService.getSyncJobStatus(jobId);
+          
+          if (status.status === 'completed') {
+            clearInterval(pollInterval);
+            setIsSyncing(false);
+            setSyncingPlatform(null);
+            alert(`Successfully synced ${status.synced_games} games from ${platform || 'all platforms'}!`);
+          } else if (status.status === 'failed') {
+            clearInterval(pollInterval);
+            setIsSyncing(false);
+            setSyncingPlatform(null);
+            alert(`Sync failed: ${status.error || 'Unknown error'}`);
+          }
+          // Keep polling if status is 'pending' or 'running'
+        } catch (pollError) {
+          console.error('Failed to check sync status:', pollError);
+        }
+      }, 2000); // Poll every 2 seconds
+      
+      // Set timeout to stop polling after 5 minutes
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        if (isSyncing) {
+          setIsSyncing(false);
+          setSyncingPlatform(null);
+          alert('Sync is taking longer than expected. Check back later for results.');
+        }
+      }, 300000); // 5 minutes
+      
+    } catch (err) {
+      console.error('Failed to start sync:', err);
+      alert(`Failed to start sync: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setIsSyncing(false);
+      setSyncingPlatform(null);
+    }
+  };
 
   const handleDelete = async (reviewId: number) => {
     if (window.confirm('Are you sure you want to delete this review?')) {
@@ -73,6 +168,188 @@ export const ProfilePage = () => {
                 <p className="text-gray-600">Reviews</p>
               </div>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Linked Gaming Accounts */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-2xl font-bold mb-4">Gaming Accounts</h2>
+        <p className="text-gray-600 mb-6">
+          Link your gaming accounts to automatically import your game library and playtime.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* Steam */}
+          {(() => {
+            const account = linkedAccounts.find((a) => a.platform === 'STEAM');
+            return (
+              <div className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <FaSteam className="text-3xl text-blue-600" />
+                  <div>
+                    <h3 className="font-semibold">Steam</h3>
+                    {account && (
+                      <p className="text-sm text-gray-600">{account.platform_username}</p>
+                    )}
+                  </div>
+                </div>
+                {account ? (
+                  <div className="space-y-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => handleSyncLibrary('steam')}
+                      disabled={isSyncing}
+                      className="w-full"
+                    >
+                      {isSyncing && syncingPlatform === 'steam' ? (
+                        <><Spinner size="sm" /> Syncing...</>
+                      ) : (
+                        <><FaSync /> Sync Library</>
+                      )}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleUnlinkAccount('steam')}
+                      className="w-full"
+                    >
+                      Unlink
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => handleLinkAccount('steam')}
+                    className="w-full"
+                  >
+                    Link Account
+                  </Button>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* PlayStation */}
+          {(() => {
+            const account = linkedAccounts.find((a) => a.platform === 'PLAYSTATION');
+            return (
+              <div className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <FaPlaystation className="text-3xl text-blue-800" />
+                  <div>
+                    <h3 className="font-semibold">PlayStation</h3>
+                    {account && (
+                      <p className="text-sm text-gray-600">{account.platform_username}</p>
+                    )}
+                  </div>
+                </div>
+                {account ? (
+                  <div className="space-y-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => handleSyncLibrary('playstation')}
+                      disabled={isSyncing}
+                      className="w-full"
+                    >
+                      {isSyncing && syncingPlatform === 'playstation' ? (
+                        <><Spinner size="sm" /> Syncing...</>
+                      ) : (
+                        <><FaSync /> Sync Library</>
+                      )}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleUnlinkAccount('playstation')}
+                      className="w-full"
+                    >
+                      Unlink
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => handleLinkAccount('playstation')}
+                    className="w-full"
+                  >
+                    Link Account
+                  </Button>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Xbox */}
+          {(() => {
+            const account = linkedAccounts.find((a) => a.platform === 'XBOX');
+            return (
+              <div className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <FaXbox className="text-3xl text-green-600" />
+                  <div>
+                    <h3 className="font-semibold">Xbox</h3>
+                    {account && (
+                      <p className="text-sm text-gray-600">{account.platform_username}</p>
+                    )}
+                  </div>
+                </div>
+                {account ? (
+                  <div className="space-y-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => handleSyncLibrary('xbox')}
+                      disabled={isSyncing}
+                      className="w-full"
+                    >
+                      {isSyncing && syncingPlatform === 'xbox' ? (
+                        <><Spinner size="sm" /> Syncing...</>
+                      ) : (
+                        <><FaSync /> Sync Library</>
+                      )}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleUnlinkAccount('xbox')}
+                      className="w-full"
+                    >
+                      Unlink
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => handleLinkAccount('xbox')}
+                    className="w-full"
+                  >
+                    Link Account
+                  </Button>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+
+        {linkedAccounts.length > 0 && (
+          <div className="text-center">
+            <Button
+              variant="secondary"
+              onClick={() => handleSyncLibrary()}
+              disabled={isSyncing}
+            >
+              {isSyncing && syncingPlatform === 'all' ? (
+                <><Spinner size="sm" /> Syncing All Platforms...</>
+              ) : (
+                <><FaSync /> Sync All Platforms</>
+              )}
+            </Button>
           </div>
         )}
       </div>

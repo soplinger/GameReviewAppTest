@@ -30,8 +30,8 @@ export const FeedPage: React.FC = () => {
     console.log('Navigate to user:', userId);
   };
 
-  const handleGameClick = (gameId: number) => {
-    navigate(`/games/${gameId}`);
+  const handleGameClick = (gameId: number, gameSlug?: string) => {
+    navigate(`/games/${gameSlug || gameId}`);
   };
 
   const handlePageChange = (page: number) => {
