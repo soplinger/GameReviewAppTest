@@ -14,6 +14,7 @@ from .core.logging import configure_logging, get_logger
 from .api.v1 import auth_router, social_router
 from .api.v1.reviews import router as reviews_router
 from .api.v1.games import router as games_router
+from .routes.oauth_routes import router as oauth_router
 
 # Configure logging
 configure_logging(log_level="INFO", json_logs=False)
@@ -55,17 +56,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routers
-app.include_router(auth_router, prefix="/api/v1")
-app.include_router(reviews_router, prefix="/api/v1")
-app.include_router(games_router, prefix="/api/v1")
-
-
 # Include routers
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(reviews_router, prefix="/api/v1")
 app.include_router(games_router, prefix="/api/v1")
 app.include_router(social_router, prefix="/api/v1")
+app.include_router(oauth_router, prefix="/api/v1")
 
 
 @app.get("/")

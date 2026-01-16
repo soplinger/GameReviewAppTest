@@ -48,6 +48,12 @@ const Header: React.FC = () => {
                 Games
               </Link>
               <Link
+                to="/library"
+                className="text-gray-700 hover:text-primary-600 transition-colors"
+              >
+                Library
+              </Link>
+              <Link
                 to="/friends"
                 className="text-gray-700 hover:text-primary-600 transition-colors"
               >

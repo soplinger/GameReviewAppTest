@@ -72,6 +72,7 @@ class Game(Base):
     
     # Relationships
     reviews = relationship("Review", back_populates="game", cascade="all, delete-orphan")
+    library_entries = relationship("GameLibrary", back_populates="game", cascade="all, delete-orphan")
     
     def __repr__(self) -> str:
         return f"<Game(id={self.id}, name='{self.name}', igdb_id={self.igdb_id})>"

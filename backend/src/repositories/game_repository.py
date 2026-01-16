@@ -268,3 +268,18 @@ class GameRepository:
             .limit(limit)
         )
         return list(result.scalars().all())
+
+    async def search_by_name(
+        self, name: str, limit: int = 20
+    ) -> List[Game]:
+        """Search games by name (case-insensitive exact or partial match).
+        
+        Args:
+            name: Game name to search for
+            limit: Maximum number of results
+            
+        Returns:
+            List of matching Game instances
+        """
+        # Alias for search method
+        return await self.search(name, limit=limit, offset=0)

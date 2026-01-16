@@ -18,6 +18,8 @@ import { GameDetailPage } from './pages/games/GameDetailPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { FeedPage } from './pages/feed/FeedPage';
 import { FriendsPage } from './pages/social/FriendsPage';
+import LinkedAccountsPage from './pages/LinkedAccountsPage';
+import GameLibraryPage from './pages/GameLibraryPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Create React Query client
@@ -76,6 +78,24 @@ const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <FriendsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                
+                {/* OAuth & Library Routes - Protected */}
+                <Route
+                  path="/linked-accounts"
+                  element={
+                    <ProtectedRoute>
+                      <LinkedAccountsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/library"
+                  element={
+                    <ProtectedRoute>
+                      <GameLibraryPage />
                     </ProtectedRoute>
                   }
                 />

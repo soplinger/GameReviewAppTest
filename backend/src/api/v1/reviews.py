@@ -3,8 +3,10 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_current_user, get_review_service, get_feed_service
+from ...core.database import get_db
 from ...models.user import User
 from ...schemas.review import (
     ReviewCreate,
@@ -14,6 +16,7 @@ from ...schemas.review import (
 )
 from ...services.review_service import ReviewService
 from ...services.feed_service import FeedService
+from ...services.library_sync_service import LibrarySyncService
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
@@ -239,3 +242,24 @@ async def get_my_reviews(
         page_size=page_size,
         total_pages=total_pages,
     )
+
+
+@router.get("/games/{game_id}/suggested-playtime")
+async def get_suggested_playtime(
+    game_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)]
+):
+    """
+    Get suggested playtime for a game from user's linked accounts.
+    
+    Returns total playtime across all linked platforms for the specified game.
+    Useful for pre-filling playtime when creating a review.
+    """
+    library_service = LibrarySyncService(db)
+    playtime = await library_service.get_game_playtime(current_user.id, game_id)
+    
+    return {
+        "game_id": game_id,
+        "suggested_playtime_hours": round(playtime, 1) if playtime else None
+    }

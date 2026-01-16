@@ -12,8 +12,8 @@ from ..core.database import Base
 if TYPE_CHECKING:
     from .review import Review
     from .friendship import Friendship
-    from .friendship import Friendship
     from .linked_account import LinkedAccount
+    from .game_library import GameLibrary
 
 
 class User(Base):
@@ -59,6 +59,18 @@ class User(Base):
         "Friendship",
         foreign_keys="Friendship.addressee_id", 
         back_populates="addressee",
+        cascade="all, delete-orphan"
+    )
+    
+    # Linked accounts and game library
+    linked_accounts: Mapped[list["LinkedAccount"]] = relationship(
+        "LinkedAccount",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+    game_library: Mapped[list["GameLibrary"]] = relationship(
+        "GameLibrary",
+        back_populates="user",
         cascade="all, delete-orphan"
     )
     
