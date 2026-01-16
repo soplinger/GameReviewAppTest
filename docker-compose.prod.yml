@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ghcr.io/soplinger/gamereviewapptest/backend:latest
+    image: ghcr.io/soplinger/gamereviewapptest/backend:main
     container_name: game-review-backend
     restart: unless-stopped
     environment:
@@ -29,7 +29,7 @@ services:
       start_period: 40s
 
   frontend:
-    image: ghcr.io/soplinger/gamereviewapptest/frontend:latest
+    image: ghcr.io/soplinger/gamereviewapptest/frontend:main
     container_name: game-review-frontend
     restart: unless-stopped
     networks:
