@@ -56,8 +56,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - backend
-      - frontend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
 
   certbot:
     image: certbot/certbot
