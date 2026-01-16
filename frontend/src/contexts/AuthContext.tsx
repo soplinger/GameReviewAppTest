@@ -4,7 +4,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserLogin, UserRegister, TokenResponse } from '../types/api';
-import apiClient, { getErrorMessage } from '@/lib/api';
+import apiClient, { getErrorMessage } from '@/lib/api.ts';
 
 interface AuthContextType {
   user: User | null;

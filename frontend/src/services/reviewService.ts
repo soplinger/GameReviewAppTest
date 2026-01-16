@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api.ts';
 import type { Review, ReviewCreate, ReviewUpdate, PaginatedResponse, User, Game } from '../types/api';
 
 // Extended review response with populated relationships
