@@ -3,13 +3,16 @@
 .gitignore
 .gitattributes
 
-# CI/CD
+# CI/CD (except workflows we might need)
 .github
 
 # Documentation
 *.md
 LICENSE
 docs/
+
+# Frontend
+frontend/
 
 # Python
 __pycache__/
