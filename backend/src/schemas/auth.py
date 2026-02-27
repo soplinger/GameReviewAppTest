@@ -47,6 +47,22 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class TokenRefreshRequest(BaseModel):
+    """Refresh access token request."""
+
+    refresh_token: str
+
+
+class AuthSession(BaseModel):
+    """Authentication session details for mobile clients."""
+
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    access_token_expires_in: int
+    refresh_token_expires_in: int
+
+
 class TokenData(BaseModel):
     """Data encoded in JWT token."""
     
