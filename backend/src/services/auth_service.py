@@ -1,7 +1,7 @@
 """
 Authentication service for user registration and login.
 """
-from typing import Tuple
+from typing import Optional, Tuple
 
 from jose import JWTError
 
@@ -92,7 +92,7 @@ class AuthService:
         
         return user, access_token, refresh_token
     
-    async def verify_token(self, token: str) -> TokenData:
+    async def verify_token(self, token: str, expected_type: Optional[str] = None) -> TokenData:
         """
         Verify and decode JWT token.
         
@@ -107,6 +107,10 @@ class AuthService:
         """
         try:
             payload = decode_token(token)
+            token_type = payload.get("type")
+            if expected_type and token_type != expected_type:
+                raise ValueError(f"Invalid token type: expected {expected_type}")
+
             user_id = int(payload.get("sub", 0))
             email = payload.get("email", "")
             
@@ -130,7 +134,7 @@ class AuthService:
         Raises:
             ValueError: If token is invalid or user not found
         """
-        token_data = await self.verify_token(token)
+        token_data = await self.verify_token(token, expected_type="access")
         user = await self.user_repository.get_by_id(token_data.user_id)
         
         if not user:
@@ -140,3 +144,23 @@ class AuthService:
             raise ValueError("User is inactive")
         
         return user
+
+    async def refresh_access_token(self, refresh_token: str) -> Tuple[str, str]:
+        """
+        Validate refresh token and issue a new token pair.
+
+        Args:
+            refresh_token: JWT refresh token
+
+        Returns:
+            Tuple of (access_token, refresh_token)
+        """
+        token_data = await self.verify_token(refresh_token, expected_type="refresh")
+
+        token_payload = {
+            "sub": str(token_data.user_id),
+            "email": token_data.email,
+        }
+        new_access_token = create_access_token(token_payload)
+        new_refresh_token = create_refresh_token(token_payload)
+        return new_access_token, new_refresh_token
