@@ -79,6 +79,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -117,5 +118,5 @@ jobs:
 
       - name: Health check
         run: |
-          sleep 10
-          curl -f https://${{ secrets.DOMAIN_NAME }}/api/v1/health || exit 1
+          sleep 30
+          curl -f http://${{ secrets.DROPLET_IP }}/api/v1/health || exit 1
